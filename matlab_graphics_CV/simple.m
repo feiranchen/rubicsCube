@@ -1,0 +1,62 @@
+clc;    % Clear the command window.
+close all;  % Close all figures (except those of imtool.)
+imtool close all;  % Close all imtool figures.
+clear;  % Erase all existing variables.
+workspace;  % Make sure the workspace panel is showing.
+I = imread('cube3.jpg');
+[a b c]=size(I);
+total = 2*(a+b)*255*3;
+side = min(sum(I(1,:,:),3));
+thre = side/255/3;
+side = min(sum(I(a,:,:),3));
+if side/255/3 < thre
+    thre = side/255/3;
+end
+side = min(sum(I(:,1,:),3));
+if side/255/3 < thre
+    thre = side/255/3;
+end
+side = min(sum(I(:,b,:),3));
+if side/255/3 < thre
+    thre = side/255/3;
+end
+Ibw = ~im2bw(I,thre-.2);
+
+Ifill = imfill(Ibw,'holes');
+subplot(2, 2, 1);
+imshow(Ifill)
+Iarea = bwareaopen(Ifill,100);
+subplot(2, 2, 2);
+imshow(Iarea)
+Ifinal = bwlabel(Iarea);
+subplot(2, 2, 3);
+imshow(Ifinal)
+
+stat = regionprops(Ifinal,'boundingbox');
+subplot(2, 2, 4);
+imshow(I); hold on;
+for cnt = 1 : numel(stat)
+    bb = stat(cnt).BoundingBox
+    rectangle('position',bb,'edgecolor','r','linewidth',2);
+end
+figure
+Ibw = Ibw(bb(2):bb(2)+bb(4),bb(1):bb(1)+bb(3),:);
+I = I(bb(2):bb(2)+bb(4),bb(1):bb(1)+bb(3),:);
+
+Ifill = imfill(Ibw,'holes');
+subplot(2, 2, 1);
+imshow(Ifill);
+Iarea = bwareaopen(Ifill,100);
+subplot(2, 2, 2);
+imshow(Iarea);
+Ifinal = bwlabel(Iarea);
+subplot(2, 2, 3);
+imshow(Ifinal);
+
+stat = regionprops(Ifinal,'boundingbox');
+subplot(2, 2, 4);
+imshow(I); hold on;
+for cnt = 1 : numel(stat)
+    bb = stat(cnt).BoundingBox
+    rectangle('position',bb,'edgecolor','r','linewidth',2);
+end
